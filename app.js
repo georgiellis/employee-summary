@@ -14,17 +14,17 @@ const render = require("./lib/htmlRenderer");
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
 
-function askQuestions() {
+function askQuestions(){
     inquirer
         .prompt([{
                 type: "input",
                 message: "What is your name?",
                 name: "name",
             },
-            {
+            {   
                 type: "number",
                 message: "What is your ID?",
-                name: "id",
+                name: "ID",
             }, {
                 type: "input",
                 message: "What is your email address?",
@@ -38,22 +38,22 @@ function askQuestions() {
             }
         ])
         .then(
-            function({ name, id, email, role }) {
+            function({ name, id, email, role}) {
                 switch (role) {
                     case "Engineer":
                         inquirer
                             .prompt({
                                 type: "input",
-                                message: "What is your GitHub username?",
+                                message: "What is your github username?",
                                 name: "github"
                             }).then(
                                 function({ github }) {
-                                    generateEngineer(name, id, email, github)
+                                    Engineer(name, id, email, github)
                                     addOtherMembers()
                                 }
                             )
                         break
-                    case "Intern":
+                     case "Intern":
                         inquirer
                             .prompt({
                                 type: "input",
@@ -61,43 +61,75 @@ function askQuestions() {
                                 name: "school"
                             }).then(
                                 function({ school }) {
-                                    generateIntern(name, id, email, school)
+                                    Intern(name, id, email, school)
                                     addOtherMembers()
                                 }
                             )
                         break
                     case "Manager":
                         inquirer
-                            .prompt({
-                                type: "input",
-                                message: "What is your Office Number?",
-                                name: "officeNumber"
-                            }).then(
-                                function({ officeNumber }) {
-                                    generateManager(name, id, email, officeNumber)
-                                    addOtherMembers()
-                                }
-                            )
-                        break
+                        .prompt({
+                            type: "input",
+                            message: "What is your Office Number?",
+                            name: "officeNumber"
+                        }).then(
+                            function({ officeNumber }) {
+                                Manager(name, id, email, officeNumber)
+                                addOtherMembers
+                            }
+                        )
+                    break
                 }
-            })
+            }       
+        )
+}
+
+function addOtherMembers() {
+    inquirer.prompt({
+        type: "confirm",
+        message: "Add other Team Members?",
+        name: "addOtherMembers"
+    }).then (
+        function({ addOtherMembers }) {
+            console.log("add other members", addOtherMembers)
+            if (addOtherMembers) {
+                askQuestions()
+            } else {
+                render()
+            }
+        }
+    )
+    .catch(err => {
+        console.log("Error adding other members", err)
+        throw err
+    })
 }
 
 ​
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
+
+const renderEmpData = render(employees);
+
 ​
 // After you have your html, you're now ready to create an HTML file using the HTML
 // returned from the `render` function. Now write it to a file named `team.html` in the
 // `output` folder. You can use the variable `outputPath` above target this location.
 // Hint: you may need to check if the `output` folder exists and create it if it
 // does not.
-​
+
+
+​fs.writeFile(outputPath, renderEmpData, (err) => {
+    if (err) throw err;
+    console.log('The file has been saved!');
+});
+
 // HINT: each employee type (manager, engineer, or intern) has slightly different
 // information; write your code to ask different questions via inquirer depending on
 // employee type.
 ​
+
 // HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
 // and Intern classes should all extend from a class named Employee; see the directions
 // for further information. Be sure to test out each class and verify it generates an 
